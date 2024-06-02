@@ -1,22 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { ExampleServiceClient } from './_proto/example_grpc_web_pb';
+import { HelloRequest } from './_proto/example_pb';
+
+const client = new ExampleServiceClient('http://localhost:8080');
 
 function App() {
+  const [message, setMessage] = useState('');
+
+  const sayHello = () => {
+    const request = new HelloRequest();
+    request.setName('world');
+
+    client.sayHello(request, {}, (err, response) => {
+      if (err) {
+        console.error(err);
+      } else {
+        setMessage(response.getMessage());
+      }
+    });
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <button onClick={sayHello}>Say Hello</button>
+        <p>{message}</p>
       </header>
     </div>
   );
