@@ -1,71 +1,50 @@
-# Getting Started with Create React App
+### Coreの設定とgRPCの起動
+1. **プロジェクトのセットアップ**
+2. **gRPCサーバーの起動**
+- gRPCサーバーをDockerコンテナとして起動
+- コンテナ名: `hijjiri-core`
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Webアプリケーションの設定
+1. **React環境の整備**
+2. **フロントエンドとバックエンドの接続**
+- JavaScriptでgRPCクライアントを実装
+- フロントエンドからgRPCサーバーへのリクエストを送信
 
-## Available Scripts
+### Envoyの設定
+1. **Dockerfileとenvoy.yamlの作成**
+- Envoyの設定ファイル`envoy.yaml`を作成
+- DockerfileでEnvoyイメージをビルド
 
-In the project directory, you can run:
+2. **Envoyのビルドとデプロイ**
+- 必要な依存関係をインストール
+- DockerコンテナとしてEnvoyを起動
 
-### `npm start`
+### Dockerネットワークの設定
+1. **ネットワークの作成**
+- Dockerネットワーク`hijjiri-network`を作成
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+2. **コンテナの起動**
+- `hijjiri-web`, `hijjiri-core`, `envoy`コンテナをネットワークに接続して起動
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 確認
+1. **ログと接続の確認**
+- 各コンテナのログを確認
+- `curl`でエンドポイントにリクエストを送信し、レスポンスを確認
 
-### `npm test`
+### コード
+```
+docker build -t custom-envoy .
+docker stop envoy hijjiri-web hijjiri-core
+docker rm envoy hijjiri-web hijjiri-core
+<既存の場合はスキップ>
+docker network create hijjiri-network
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+docker run -d --name hijjiri-web --network hijjiri-network -p 3000:80 hijjiri-web:latest
+docker run -d --name hijjiri-core --network hijjiri-network -p 50051:50051 hijjiri-core:latest
+docker run -d --name envoy --network hijjiri-network -p 8080:8080 custom-envoy
 
-### `npm run build`
+curl -v http://localhost:8080/
+curl -v http://localhost:8080/api
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# web
+```
