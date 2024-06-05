@@ -1,23 +1,27 @@
-# ベースイメージとしてNode.jsを使用
-FROM node:20 AS builder
+# Stage 1: Build the React app
+FROM node:20-alpine as builder
 
-# 作業ディレクトリを設定
+# Set the Current Working Directory inside the container
 WORKDIR /app
 
-# パッケージファイルとプロジェクトファイルをコピー
-COPY package.json package-lock.json ./
+# Copy the package.json and install dependencies
+COPY package*.json ./
 RUN npm install
 
-# ソースコードをコピー
+# Copy the source code
 COPY . .
 
-# ビルド
+# Build the app
 RUN npm run build
 
-# 実行フェーズ
+# Stage 2: Serve the app with nginx
 FROM nginx:alpine
-COPY --from=builder /app/build /usr/share/nginx/html
-COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy the built app from the builder stage
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Expose port 80 to the outside world
 EXPOSE 80
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
