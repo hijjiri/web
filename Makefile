@@ -11,7 +11,7 @@ docker-stop:
 # Dockerコンテナの実行
 .PHONY: docker-run
 docker-run:
-	docker run -d --name hijjiri-web -p 3000:80 hijjiri-web:latest
+	docker run -d --name hijjiri-web -p 3030:80 hijjiri-web:latest
 
 # Dockerコンテナの再ビルドと再実行
 .PHONY: docker-restart
